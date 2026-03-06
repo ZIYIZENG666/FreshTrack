@@ -1,4 +1,7 @@
-﻿namespace FreshTrack
+﻿using FreshTrack;
+using Microsoft.Maui.Controls;
+
+namespace FreshTrack
 {
     public partial class MainPage : ContentPage
     {
