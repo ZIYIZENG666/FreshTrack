@@ -25,26 +25,30 @@
 
         <Button
             x:Name="StartButton"
-            Text="开始使用" 
-            FontSize="18"
-            FontAttributes="Bold"
+            Text="Start" 
+            FontSize="14"
             BackgroundColor="#4299E1"
             TextColor="White"
-            CornerRadius="12"
-            WidthRequest="200"
-            HeightRequest="50"
+            CornerRadius="40"
+            WidthRequest="80"
+            HeightRequest="80"
+            Padding="0"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
             Clicked="OnStartClicked"/>
 
         <Button
             x:Name="ExitButton"
-            Text="开始使用" 
+            Text="Exit" 
             FontSize="18"
-            FontAttributes="Bold"
             BackgroundColor="#4299E1"
             TextColor="White"
-            CornerRadius="12"
-            WidthRequest="200"
-            HeightRequest="50"
+            CornerRadius="30"
+            WidthRequest="60"
+            HeightRequest="60"
+            Padding="0"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
             Clicked="OnExitClicked"/>
         
     </VerticalStackLayout>

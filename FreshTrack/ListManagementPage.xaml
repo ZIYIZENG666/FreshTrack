@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             x:Class="FreshTrack.ListManagementPage"
+             Title="List Management">
+
+    <ContentPage.Background>
+        <SolidColorBrush Color="#DFF4E9" />
+    </ContentPage.Background>
+
+    <Border Stroke="#2E7D32" StrokeThickness="2" Padding="16">
+        <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="*">
+
+            <Label Grid.Row="0" Text="List Management" FontSize="26" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,6" />
+
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout Spacing="18" HorizontalOptions="Center" VerticalOptions="Center">
+                    <CollectionView x:Name="ListcollectionView" ItemsSource="{Binding Lists}" SelectionMode="None" ItemsLayout="VerticalList">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="0" HorizontalOptions="Center">
+                                    <Grid WidthRequest="200" HeightRequest="60" HorizontalOptions="Center" VerticalOptions="Center">
+                                        <shapes:Ellipse Stroke="Black" StrokeThickness="2" Fill="Transparent" />
+                                        <Label Text="{Binding Name}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18" FontAttributes="Bold" />
+                                    </Grid>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <VerticalStackLayout Grid.Row="2" Spacing="18" HorizontalOptions="Center" Margin="0,12">
+
+                <AbsoluteLayout WidthRequest="200" HeightRequest="100" HorizontalOptions="Center">
+                    <shapes:Polygon Points="50,0 100,25 100,75 50,100 0,75 0,25"
+                                    Stroke="Black"
+                                    StrokeThickness="2"
+                                    Fill="Transparent"
+                                    AbsoluteLayout.LayoutBounds="0.5,0.5,1,1"
+                                    AbsoluteLayout.LayoutFlags="All" />
+
+                    <Label Text="Add List"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1"
+                           AbsoluteLayout.LayoutFlags="PositionProportional"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center" />
+
+                    <Button x:Name="AddListButton"
+                            BackgroundColor="Transparent"
+                            BorderColor="Transparent"
+                            Clicked="OnAddListClicked"
+                            AbsoluteLayout.LayoutBounds="0.5,0.5,1,1"
+                            AbsoluteLayout.LayoutFlags="All"
+                            Opacity="0.01" />
+                </AbsoluteLayout>
+
+                <AbsoluteLayout WidthRequest="200" HeightRequest="100" HorizontalOptions="Center">
+                    <shapes:Polygon Points="50,0 100,25 100,75 50,100 0,75 0,25"
+                                    Stroke="Black"
+                                    StrokeThickness="2"
+                                    Fill="Transparent"
+                                    AbsoluteLayout.LayoutBounds="0.5,0.5,1,1"
+                                    AbsoluteLayout.LayoutFlags="All" />
+
+                    <Label Text="Delete List"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1"
+                           AbsoluteLayout.LayoutFlags="PositionProportional"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center" />
+
+                    <Button x:Name="DeleteListButton"
+                            BackgroundColor="Transparent"
+                            BorderColor="Transparent"
+                            Clicked="OnEnterDeleteModeClicked"
+                            AbsoluteLayout.LayoutBounds="0.5,0.5,1,1"
+                            AbsoluteLayout.LayoutFlags="All"
+                            Opacity="0.01" />
+                </AbsoluteLayout>
+
+                <HorizontalStackLayout x:Name="DeletePanel" IsVisible="False" Spacing="12" HorizontalOptions="Center">
+                    <Button Text="Confirm Delete" BackgroundColor="Red" TextColor="White" Clicked="OnConfirmDeleteClicked" WidthRequest="140"/>
+                    <Button Text="Cancel" Clicked="OnCancelDeleteClicked" WidthRequest="140"/>
+                </HorizontalStackLayout>
+
+            </VerticalStackLayout>
+
+        </Grid>
+    </Border>
+
+</ContentPage>
