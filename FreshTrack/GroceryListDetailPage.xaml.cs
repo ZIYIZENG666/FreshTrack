@@ -74,7 +74,7 @@ public partial class GroceryListDetailPage : ContentPage
 
         if (string.IsNullOrWhiteSpace(veg) && string.IsNullOrWhiteSpace(meat))
         {
-            await DisplayAlertAsync("提示", "请至少填写蔬菜或肉类中的一项。", "确定");
+            await DisplayAlertAsync("Notice", "Please enter at least one item in Vegetable or Meat.", "OK");
             return;
         }
 

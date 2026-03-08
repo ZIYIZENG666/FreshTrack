@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
              x:Class="FreshTrack.ListManagementPage"
+             x:Name="RootPage"
              Title="List Management">
 
     <ContentPage.Background>
@@ -36,20 +37,40 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <Grid Padding="0" HorizontalOptions="Center" VerticalOptions="Center">
-                                    <Grid WidthRequest="200" HeightRequest="80">
-                                        <shapes:Ellipse Stroke="Black" StrokeThickness="2" Fill="Transparent" />
-                                        <Label Text="{Binding Name}"
-                                               HorizontalOptions="Center"
-                                               VerticalOptions="Center"
-                                               FontSize="18"
-                                               FontAttributes="Bold" />
-                                        <Button BackgroundColor="Transparent"
-                                                BorderColor="Transparent"
-                                                Opacity="0"
-                                                Clicked="OnListClicked"
+                                    <Grid ColumnDefinitions="Auto,Auto" VerticalOptions="Center" HorizontalOptions="Center">
+                                        <Grid Column="0">
+                                            <Grid WidthRequest="200" HeightRequest="80">
+                                                <shapes:Ellipse Stroke="Black" StrokeThickness="2" Fill="Transparent" />
+                                                <Label Text="{Binding Name}"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center"
+                                                       FontSize="18"
+                                                       FontAttributes="Bold" />
+                                                <!-- transparent overlay to capture clicks on the ellipse -->
+                                                <Button BackgroundColor="Transparent"
+                                                        BorderColor="Transparent"
+                                                        Opacity="0"
+                                                        Clicked="OnListClicked"
+                                                        CommandParameter="{Binding}" />
+                                            </Grid>
+                                        </Grid>
+
+                                        <!-- delete X button on the right, visible only in delete mode -->
+                                        <Button Grid.Column="1"
+                                                Text="✕"
+                                                FontSize="18"
+                                                FontAttributes="Bold"
+                                                TextColor="White"
+                                                BackgroundColor="#E53E3E"
+                                                WidthRequest="40"
+                                                HeightRequest="40"
+                                                CornerRadius="20"
+                                                BorderWidth="0"
+                                                Clicked="OnDeleteItemClicked"
                                                 CommandParameter="{Binding}"
-                                                AbsoluteLayout.LayoutBounds="0,0,1,1"
-                                                AbsoluteLayout.LayoutFlags="All" />
+                                                IsVisible="{Binding Source={x:Reference RootPage}, Path=IsDeleteMode}"
+                                                VerticalOptions="Center"
+                                                Margin="8,0,0,0" />
                                     </Grid>
                                 </Grid>
                             </DataTemplate>
@@ -71,6 +92,7 @@
                         Text="Delete List"
                         Clicked="OnEnterDeleteModeClicked"
                         Style="{StaticResource PillButtonStyle}" />
+                <Button x:Name="CancelDeleteButton" Text="Cancel" Clicked="OnCancelDeleteModeClicked" Style="{StaticResource PillButtonStyle}" IsVisible="False" />
 
                 <HorizontalStackLayout x:Name="DeletePanel" IsVisible="False" Spacing="12" HorizontalOptions="Center">
                     <Button Text="Confirm Delete" BackgroundColor="Red" TextColor="White" Clicked="OnConfirmDeleteClicked" WidthRequest="140"/>

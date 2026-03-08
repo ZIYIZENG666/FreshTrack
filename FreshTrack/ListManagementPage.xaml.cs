@@ -10,6 +10,16 @@ public partial class ListManagementPage : ContentPage
 {
     public ObservableCollection<ShoppingList> Lists { get; } = new();
 
+    // Bindable property to control delete mode from XAML bindings
+    public static readonly BindableProperty IsDeleteModeProperty = BindableProperty.Create(
+        nameof(IsDeleteMode), typeof(bool), typeof(ListManagementPage), false);
+
+    public bool IsDeleteMode
+    {
+        get => (bool)GetValue(IsDeleteModeProperty);
+        set => SetValue(IsDeleteModeProperty, value);
+    }
+
     // Tracks selected items when in delete mode
     private IList<object> _selectedItems = new List<object>();
     private bool _isDeleteMode = false;
@@ -52,11 +62,34 @@ public partial class ListManagementPage : ContentPage
 
     private void OnEnterDeleteModeClicked(object? sender, EventArgs e)
     {
+        // Enter delete mode: show X buttons on each item
+        IsDeleteMode = true;
         _isDeleteMode = true;
-        ListcollectionView.SelectionMode = SelectionMode.Multiple;
-        DeletePanel.IsVisible = true;
+        // hide primary buttons and show cancel
         AddListButton.IsVisible = false;
         DeleteListButton.IsVisible = false;
+        CancelDeleteButton.IsVisible = true;
+        // hide selection-based delete panel if present
+        DeletePanel.IsVisible = false;
+        // disable selection
+        ListcollectionView.SelectionMode = SelectionMode.None;
+    }
+
+    private void OnCancelDeleteModeClicked(object? sender, EventArgs e)
+    {
+        ExitDeleteMode();
+    }
+
+    private async void OnDeleteItemClicked(object? sender, EventArgs e)
+    {
+        if (sender is Button btn && btn.CommandParameter is ShoppingList list)
+        {
+            var ok = await DisplayAlertAsync("Delete List", $"Are you sure you want to delete '{list.Name}'?", "Delete", "Cancel");
+            if (ok)
+            {
+                Lists.Remove(list);
+            }
+        }
     }
 
     private void OnCancelDeleteClicked(object? sender, EventArgs e)
@@ -68,11 +101,11 @@ public partial class ListManagementPage : ContentPage
     {
         if (_selectedItems.Count == 0)
         {
-            await DisplayAlertAsync("提示", "请先选择要删除的清单。", "确定");
+            await DisplayAlertAsync("Notice", "Please select at least one list to delete.", "OK");
             return;
         }
 
-        var ok = await DisplayAlertAsync("确认删除", $"确定删除选中的 {_selectedItems.Count} 个清单吗？", "删除", "取消");
+        var ok = await DisplayAlertAsync("Confirm Delete", $"Are you sure you want to delete the selected {_selectedItems.Count} lists?", "Delete", "Cancel");
         if (!ok) return;
 
         // Remove selected items
@@ -88,10 +121,12 @@ public partial class ListManagementPage : ContentPage
     private void ExitDeleteMode()
     {
         _isDeleteMode = false;
+        IsDeleteMode = false;
         ListcollectionView.SelectionMode = SelectionMode.None;
         DeletePanel.IsVisible = false;
         AddListButton.IsVisible = true;
         DeleteListButton.IsVisible = true;
+        CancelDeleteButton.IsVisible = false;
         _selectedItems.Clear();
         ListcollectionView.SelectedItems?.Clear();
     }
@@ -118,7 +153,7 @@ public partial class ListManagementPage : ContentPage
     {
         if (sender is SwipeItem si && si.CommandParameter is ShoppingList list)
         {
-            var ok = await DisplayAlertAsync("删除清单", $"确定删除 '{list.Name}' 吗？", "删除", "取消");
+            var ok = await DisplayAlertAsync("Delete List", $"Are you sure you want to delete '{list.Name}'?", "Delete", "Cancel");
             if (ok)
             {
                 Lists.Remove(list);

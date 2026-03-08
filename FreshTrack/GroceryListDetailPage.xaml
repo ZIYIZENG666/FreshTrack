@@ -33,7 +33,7 @@
 
         <!-- Top: list name entry -->
         <Grid Grid.Row="0" Padding="12">
-            <Entry x:Name="NameEntry" Placeholder="清单名称" HeightRequest="40" TextChanged="OnContentChanged" />
+            <Entry x:Name="NameEntry" Placeholder="List Name" HeightRequest="40" TextChanged="OnContentChanged" />
         </Grid>
 
         <!-- Panels below the top entries: header + input area inside each panel -->
