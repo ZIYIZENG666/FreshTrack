@@ -17,21 +17,36 @@ public partial class ListManagementPage : ContentPage
     public ListManagementPage()
     {
         InitializeComponent();
-
-        // Sample data
-        Lists.Add(new ShoppingList { Name = "List1" });
-        Lists.Add(new ShoppingList { Name = "List2" });
-        Lists.Add(new ShoppingList { Name = "List3" });
-
         BindingContext = this;
     }
 
     private async void OnAddListClicked(object? sender, EventArgs e)
     {
-        var result = await DisplayPromptAsync("Add List", "Enter list name:", "OK", "Cancel", "", -1, Keyboard.Text);
-        if (!string.IsNullOrWhiteSpace(result))
+        // Navigate to detail page to create a new list. Provide a callback to add the list when saved.
+        var newList = new ShoppingList();
+        await Navigation.PushAsync(new GroceryListDetailPage(newList, saved =>
         {
-            Lists.Add(new ShoppingList { Name = result.Trim() });
+            if (saved != null)
+            {
+                Lists.Add(saved);
+            }
+        }));
+    }
+
+    private async void OnListClicked(object? sender, EventArgs e)
+    {
+        if (sender is Button btn && btn.CommandParameter is ShoppingList list)
+        {
+            // navigate to detail page for editing; on save replace the item to refresh UI
+            await Navigation.PushAsync(new GroceryListDetailPage(list, saved =>
+            {
+                if (saved == null) return;
+                var idx = Lists.IndexOf(list);
+                if (idx >= 0)
+                {
+                    Lists[idx] = saved;
+                }
+            }));
         }
     }
 
@@ -123,4 +138,6 @@ public partial class ListManagementPage : ContentPage
 public class ShoppingList
 {
     public string Name { get; set; } = string.Empty;
+    public string Vegetable { get; set; } = string.Empty;
+    public string Meat { get; set; } = string.Empty;
 }

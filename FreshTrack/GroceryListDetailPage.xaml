@@ -2,11 +2,71 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="FreshTrack.GroceryListDetailPage"
-             Title="GroceryListDetailPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="List Detail">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="SectionBorderStyle" TargetType="Border">
+                <Setter Property="Stroke" Value="#9CCC65" />
+                <Setter Property="StrokeThickness" Value="2" />
+                <Setter Property="BackgroundColor" Value="#FFFFFF" />
+                <Setter Property="Padding" Value="8" />
+                <Setter Property="WidthRequest" Value="160" />
+                <Setter Property="HeightRequest" Value="220" />
+            </Style>
+
+            <Style x:Key="CircleButtonStyle" TargetType="Button">
+                <Setter Property="WidthRequest" Value="160" />
+                <Setter Property="HeightRequest" Value="160" />
+                <Setter Property="CornerRadius" Value="80" />
+                <Setter Property="BackgroundColor" Value="#F8BBD0" />
+                <Setter Property="BorderColor" Value="#E57373" />
+                <Setter Property="BorderWidth" Value="2" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="*">
+
+        <!-- Top: list name entry -->
+        <Grid Grid.Row="0" Padding="12">
+            <Entry x:Name="NameEntry" Placeholder="清单名称" HeightRequest="40" TextChanged="OnContentChanged" />
+        </Grid>
+
+        <!-- Panels below the top entries: header + input area inside each panel -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" Padding="12" ColumnSpacing="24">
+            <Border Grid.Column="0" Style="{StaticResource SectionBorderStyle}" HorizontalOptions="Start" VerticalOptions="Start">
+                <Grid RowDefinitions="Auto,*">
+                    <Label Text="Meat" FontAttributes="Bold" BackgroundColor="#E8F5E9" HorizontalOptions="Fill" HorizontalTextAlignment="Center" />
+                    <!-- multi-line input area for meat -->
+                    <Editor x:Name="MeatEntry" Placeholder="Enter meat here..." AutoSize="TextChanges" Grid.Row="1" Margin="8" TextChanged="OnContentChanged" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1" Style="{StaticResource SectionBorderStyle}" HorizontalOptions="End" VerticalOptions="Start">
+                <Grid RowDefinitions="Auto,*">
+                    <Label Text="Vegetable" FontAttributes="Bold" BackgroundColor="#E8F5E9" HorizontalOptions="Fill" HorizontalTextAlignment="Center" />
+                    <!-- multi-line input area for vegetable -->
+                    <Editor x:Name="VegetableEntry" Placeholder="Enter vegetables here..." AutoSize="TextChanges" Grid.Row="1" Margin="8" TextChanged="OnContentChanged" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Bottom controls: back button left and circular control center -->
+        <Grid Grid.Row="2">
+            <HorizontalStackLayout HorizontalOptions="Start" Padding="12">
+                <Button Text="←" Clicked="OnBackClicked" WidthRequest="56" HeightRequest="56" CornerRadius="28" />
+            </HorizontalStackLayout>
+
+            <Button Text="Clock" Style="{StaticResource CircleButtonStyle}" HorizontalOptions="Center" VerticalOptions="Center" Clicked="OnClockClicked" />
+
+            <!-- Save button on the bottom right; visible only when creating or when content changed -->
+            <Button x:Name="SaveButton" Text="Save" Clicked="OnSaveClicked" HorizontalOptions="End" VerticalOptions="Center" IsVisible="False" Margin="12" />
+        </Grid>
+
+    </Grid>
+
 </ContentPage>

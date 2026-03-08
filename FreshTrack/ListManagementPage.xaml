@@ -35,10 +35,21 @@
                     <CollectionView x:Name="ListcollectionView" ItemsSource="{Binding Lists}" SelectionMode="None" ItemsLayout="VerticalList">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid Padding="0" HorizontalOptions="Center">
-                                    <Grid WidthRequest="200" HeightRequest="60" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Grid Padding="0" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Grid WidthRequest="200" HeightRequest="80">
                                         <shapes:Ellipse Stroke="Black" StrokeThickness="2" Fill="Transparent" />
-                                        <Label Text="{Binding Name}" HorizontalOptions="Center" VerticalOptions="Center" FontSize="18" FontAttributes="Bold" />
+                                        <Label Text="{Binding Name}"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"
+                                               FontSize="18"
+                                               FontAttributes="Bold" />
+                                        <Button BackgroundColor="Transparent"
+                                                BorderColor="Transparent"
+                                                Opacity="0"
+                                                Clicked="OnListClicked"
+                                                CommandParameter="{Binding}"
+                                                AbsoluteLayout.LayoutBounds="0,0,1,1"
+                                                AbsoluteLayout.LayoutFlags="All" />
                                     </Grid>
                                 </Grid>
                             </DataTemplate>
