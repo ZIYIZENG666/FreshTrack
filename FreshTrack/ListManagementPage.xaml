@@ -10,6 +10,22 @@
     </ContentPage.Background>
 
     <Border Stroke="#2E7D32" StrokeThickness="2" Padding="16">
+        <Border.Resources>
+            <ResourceDictionary>
+                <Style x:Key="PillButtonStyle" TargetType="Button">
+                    <Setter Property="WidthRequest" Value="220" />
+                    <Setter Property="HeightRequest" Value="56" />
+                    <Setter Property="CornerRadius" Value="28" />
+                    <Setter Property="BackgroundColor" Value="#FFFFFF" />
+                    <Setter Property="BorderColor" Value="#2E7D32" />
+                    <Setter Property="BorderWidth" Value="2" />
+                    <Setter Property="FontAttributes" Value="Bold" />
+                    <Setter Property="HorizontalOptions" Value="Center" />
+                    <Setter Property="Padding" Value="12,6" />
+                    <Setter Property="TextColor" Value="#000000" />
+                </Style>
+            </ResourceDictionary>
+        </Border.Resources>
         <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="*">
 
             <Label Grid.Row="0" Text="List Management" FontSize="26" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,6" />
@@ -33,55 +49,17 @@
 
             <VerticalStackLayout Grid.Row="2" Spacing="18" HorizontalOptions="Center" Margin="0,12">
 
-                <AbsoluteLayout WidthRequest="200" HeightRequest="100" HorizontalOptions="Center">
-                    <shapes:Polygon Points="50,0 100,25 100,75 50,100 0,75 0,25"
-                                    Stroke="Black"
-                                    StrokeThickness="2"
-                                    Fill="Transparent"
-                                    AbsoluteLayout.LayoutBounds="0.5,0.5,1,1"
-                                    AbsoluteLayout.LayoutFlags="All" />
+                <!-- Simple pill-shaped Add List button (uses shared PillButtonStyle) -->
+                <Button x:Name="AddListButton"
+                        Text="Add List"
+                        Clicked="OnAddListClicked"
+                        Style="{StaticResource PillButtonStyle}" />
 
-                    <Label Text="Add List"
-                           FontSize="18"
-                           FontAttributes="Bold"
-                           AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1"
-                           AbsoluteLayout.LayoutFlags="PositionProportional"
-                           HorizontalTextAlignment="Center"
-                           VerticalTextAlignment="Center" />
-
-                    <Button x:Name="AddListButton"
-                            BackgroundColor="Transparent"
-                            BorderColor="Transparent"
-                            Clicked="OnAddListClicked"
-                            AbsoluteLayout.LayoutBounds="0.5,0.5,1,1"
-                            AbsoluteLayout.LayoutFlags="All"
-                            Opacity="0.01" />
-                </AbsoluteLayout>
-
-                <AbsoluteLayout WidthRequest="200" HeightRequest="100" HorizontalOptions="Center">
-                    <shapes:Polygon Points="50,0 100,25 100,75 50,100 0,75 0,25"
-                                    Stroke="Black"
-                                    StrokeThickness="2"
-                                    Fill="Transparent"
-                                    AbsoluteLayout.LayoutBounds="0.5,0.5,1,1"
-                                    AbsoluteLayout.LayoutFlags="All" />
-
-                    <Label Text="Delete List"
-                           FontSize="18"
-                           FontAttributes="Bold"
-                           AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1"
-                           AbsoluteLayout.LayoutFlags="PositionProportional"
-                           HorizontalTextAlignment="Center"
-                           VerticalTextAlignment="Center" />
-
-                    <Button x:Name="DeleteListButton"
-                            BackgroundColor="Transparent"
-                            BorderColor="Transparent"
-                            Clicked="OnEnterDeleteModeClicked"
-                            AbsoluteLayout.LayoutBounds="0.5,0.5,1,1"
-                            AbsoluteLayout.LayoutFlags="All"
-                            Opacity="0.01" />
-                </AbsoluteLayout>
+                <!-- Simple pill-shaped Delete List button -->
+                <Button x:Name="DeleteListButton"
+                        Text="Delete List"
+                        Clicked="OnEnterDeleteModeClicked"
+                        Style="{StaticResource PillButtonStyle}" />
 
                 <HorizontalStackLayout x:Name="DeletePanel" IsVisible="False" Spacing="12" HorizontalOptions="Center">
                     <Button Text="Confirm Delete" BackgroundColor="Red" TextColor="White" Clicked="OnConfirmDeleteClicked" WidthRequest="140"/>
