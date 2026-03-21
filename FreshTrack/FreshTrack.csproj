@@ -79,4 +79,8 @@
 	  </MauiXaml>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Platforms\Android\Services\" />
+	</ItemGroup>
+
 </Project>

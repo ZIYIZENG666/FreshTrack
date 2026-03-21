@@ -5,8 +5,8 @@
     
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#F5F7FA" Offset="0.0" />
-            <GradientStop Color="#E4E8F0" Offset="1.0" />
+            <GradientStop Color="#ECFDF5" Offset="0.0" />
+            <GradientStop Color="#D1FAE5" Offset="1.0" />
         </LinearGradientBrush>
     </ContentPage.Background>
 
@@ -27,7 +27,7 @@
             x:Name="StartButton"
             Text="Start" 
             FontSize="14"
-            BackgroundColor="#4299E1"
+            BackgroundColor="#10B981"
             TextColor="White"
             CornerRadius="40"
             WidthRequest="80"
@@ -41,7 +41,7 @@
             x:Name="ExitButton"
             Text="Exit" 
             FontSize="18"
-            BackgroundColor="#4299E1"
+            BackgroundColor="#FF0000"
             TextColor="White"
             CornerRadius="30"
             WidthRequest="60"
