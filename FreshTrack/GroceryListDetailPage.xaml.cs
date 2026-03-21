@@ -21,7 +21,7 @@ public partial class GroceryListDetailPage : ContentPage
     public GroceryListDetailPage(ShoppingList list, Action<ShoppingList> onSave) : this()
     {
         _editingList = list;
-        _onSave = onSave;
+        _onSave = wrappedList =>
         BindingContext = _editingList;
 
         // initialize UI
@@ -38,7 +38,7 @@ public partial class GroceryListDetailPage : ContentPage
     public GroceryListDetailPage(Action<ShoppingList> onSave) : this()
     {
         _editingList = new ShoppingList();
-        _onSave = onSave;
+        _onSave = wrappedList =>
         BindingContext = _editingList;
         _isNew = true;
         SaveButton.IsVisible = true; // new list: show save
