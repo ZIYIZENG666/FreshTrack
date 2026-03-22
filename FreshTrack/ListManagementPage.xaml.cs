@@ -172,6 +172,8 @@ public partial class ListManagementPage : ContentPage
 
 public class ShoppingList
 {
+    // 新增Id属性，用于区分不同清单的定时提醒
+    public int Id { get; set; } = new Random().Next(1000, 9999); // 默认生成随机ID
     public string Name { get; set; } = string.Empty;
     public string Vegetable { get; set; } = string.Empty;
     public string Meat { get; set; } = string.Empty;
