@@ -21,7 +21,7 @@ public partial class GroceryListDetailPage : ContentPage
     public GroceryListDetailPage(ShoppingList list, Action<ShoppingList> onSave) : this()
     {
         _editingList = list;
-        _onSave = wrappedList =>
+        _onSave = onSave;
         {
             BindingContext = _editingList;
         };
@@ -40,7 +40,7 @@ public partial class GroceryListDetailPage : ContentPage
     public GroceryListDetailPage(Action<ShoppingList> onSave) : this()
     {
         _editingList = new ShoppingList();
-        _onSave = wrappedList =>
+        _onSave = onSave;
         {
             BindingContext = _editingList;
         };
@@ -52,7 +52,7 @@ public partial class GroceryListDetailPage : ContentPage
     private async void OnClockClicked(object? sender, EventArgs e)
     {
         // 1. 请求通知权限（Android 13+ 必需）
-        var reminderService = DependencyService.Get<IReminderService>();
+        var reminderService = Application.Current?.Handler?.MauiContext?.Services.GetService<IReminderService>();
         if (reminderService == null)
         {
             await DisplayAlertAsync("Error", "Reminder service not available", "OK");
@@ -110,7 +110,7 @@ public partial class GroceryListDetailPage : ContentPage
         // ShoppingList已添加Id属性，此处无报错
         var listId = _editingList?.Id ?? Random.Shared.Next(1000, 9999);
 
-        reminderService.SetReminder(triggerTime.ToUniversalTime(), reminderTitle, reminderMessage, listId);
+        reminderService.SetReminder(triggerTime, reminderTitle, reminderMessage, listId);
 
         // 提示用户设置成功
         await DisplayAlertAsync("Success", $"Reminder set for {triggerTime:HH:mm}", "OK");

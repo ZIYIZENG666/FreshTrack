@@ -13,8 +13,6 @@ using System.Threading.Tasks;
 #pragma warning disable CA1416 // 抑制版本兼容性警告
 #pragma warning disable CS0618 // 抑制过时API警告（如有）
 
-// 确保Dependency特性正确指向Android实现类
-[assembly: Dependency(typeof(FreshTrack.Platforms.Android.ReminderService))]
 namespace FreshTrack.Platforms.Android;
 
 public class ReminderService : IReminderService
