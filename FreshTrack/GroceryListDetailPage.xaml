@@ -1,72 +1,208 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:FreshTrack.Controls"
+             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
              x:Class="FreshTrack.GroceryListDetailPage"
              Title="List Detail">
 
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F2FBF4" Offset="0" />
+            <GradientStop Color="#DCF4E2" Offset="1" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
     <ContentPage.Resources>
         <ResourceDictionary>
-            <Style x:Key="SectionBorderStyle" TargetType="Border">
-                <Setter Property="Stroke" Value="#9CCC65" />
-                <Setter Property="StrokeThickness" Value="2" />
-                <Setter Property="BackgroundColor" Value="#FFFFFF" />
-                <Setter Property="Padding" Value="8" />
-                <Setter Property="WidthRequest" Value="160" />
-                <Setter Property="HeightRequest" Value="220" />
+            <Style x:Key="PanelCardStyle" TargetType="Border">
+                <Setter Property="Stroke" Value="#B8DEC1" />
+                <Setter Property="StrokeThickness" Value="1.5" />
+                <Setter Property="BackgroundColor" Value="#FCFFFC" />
+                <Setter Property="Padding" Value="18,16" />
+                <Setter Property="WidthRequest" Value="300" />
             </Style>
 
-            <Style x:Key="CircleButtonStyle" TargetType="Button">
-                <Setter Property="WidthRequest" Value="160" />
-                <Setter Property="HeightRequest" Value="160" />
-                <Setter Property="CornerRadius" Value="80" />
-                <Setter Property="BackgroundColor" Value="#F8BBD0" />
-                <Setter Property="BorderColor" Value="#E57373" />
-                <Setter Property="BorderWidth" Value="2" />
+            <Style x:Key="SectionEditorStyle" TargetType="Editor">
+                <Setter Property="AutoSize" Value="TextChanges" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="TextColor" Value="#355342" />
+                <Setter Property="PlaceholderColor" Value="#8CA494" />
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="Margin" Value="0,10,0,0" />
+            </Style>
+
+            <Style x:Key="ActionButtonStyle" TargetType="controls:AnimatedButton">
+                <Setter Property="HeightRequest" Value="56" />
+                <Setter Property="CornerRadius" Value="24" />
+                <Setter Property="Padding" Value="20,10" />
                 <Setter Property="FontAttributes" Value="Bold" />
-                <Setter Property="HorizontalOptions" Value="Center" />
-                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="PrimaryActionButtonStyle" TargetType="controls:AnimatedButton" BasedOn="{StaticResource ActionButtonStyle}">
+                <Setter Property="BackgroundColor" Value="#3FA36C" />
+                <Setter Property="BorderColor" Value="#3FA36C" />
+                <Setter Property="TextColor" Value="White" />
+            </Style>
+
+            <Style x:Key="SecondaryActionButtonStyle" TargetType="controls:AnimatedButton" BasedOn="{StaticResource ActionButtonStyle}">
+                <Setter Property="BackgroundColor" Value="#F6FFF8" />
+                <Setter Property="BorderColor" Value="#9AC9A8" />
+                <Setter Property="BorderWidth" Value="1.5" />
+                <Setter Property="TextColor" Value="#3D6750" />
             </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="*">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="24,24,24,10"
+                                 Spacing="16"
+                                 HorizontalOptions="Center">
+                <VerticalStackLayout Spacing="6"
+                                     HorizontalOptions="Center"
+                                     Margin="0,0,0,4">
+                    <Label Text="Fresh List Detail"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           TextColor="#2E5B43"
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="Organize your grocery reminder in clear green sections."
+                           FontSize="13"
+                           TextColor="#6E8D7A"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
 
-        <!-- Top: list name entry -->
-        <Grid Grid.Row="0" Padding="12">
-            <Entry x:Name="NameEntry" Placeholder="List Name" HeightRequest="40" TextChanged="OnContentChanged" />
+                <Border Style="{StaticResource PanelCardStyle}">
+                    <Border.StrokeShape>
+                        <shapes:RoundRectangle CornerRadius="26" />
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="#154E6E3A" Offset="0,8" Radius="18" Opacity="0.14" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="List Title"
+                               FontSize="13"
+                               TextColor="#70907A" />
+                        <Entry x:Name="NameEntry"
+                               Placeholder="Enter a short list title"
+                               HeightRequest="48"
+                               BackgroundColor="#F2FAF3"
+                               TextColor="#274734"
+                               PlaceholderColor="#89A08F"
+                               TextChanged="OnContentChanged" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource PanelCardStyle}">
+                    <Border.StrokeShape>
+                        <shapes:RoundRectangle CornerRadius="26" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Address"
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               TextColor="#2E5B43" />
+                        <Editor x:Name="AddressEntry"
+                                Style="{StaticResource SectionEditorStyle}"
+                                AutoSize="Disabled"
+                                HeightRequest="78"
+                                Placeholder="Add the market, store, or delivery address here"
+                                TextChanged="OnContentChanged" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource PanelCardStyle}">
+                    <Border.StrokeShape>
+                        <shapes:RoundRectangle CornerRadius="26" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Vegetables"
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               TextColor="#2E5B43" />
+                        <Editor x:Name="VegetableEntry"
+                                Style="{StaticResource SectionEditorStyle}"
+                                Placeholder="Lettuce, tomatoes, cucumbers..."
+                                TextChanged="OnContentChanged" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource PanelCardStyle}">
+                    <Border.StrokeShape>
+                        <shapes:RoundRectangle CornerRadius="26" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Meat"
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               TextColor="#2E5B43" />
+                        <Editor x:Name="MeatEntry"
+                                Style="{StaticResource SectionEditorStyle}"
+                                Placeholder="Chicken, beef, fish..."
+                                TextChanged="OnContentChanged" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource PanelCardStyle}">
+                    <Border.StrokeShape>
+                        <shapes:RoundRectangle CornerRadius="26" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Drinks"
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               TextColor="#2E5B43" />
+                        <Editor x:Name="DrinkEntry"
+                                Style="{StaticResource SectionEditorStyle}"
+                                Placeholder="Milk, juice, sparkling water..."
+                                TextChanged="OnContentChanged" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource PanelCardStyle}"
+                        Margin="0,0,0,8">
+                    <Border.StrokeShape>
+                        <shapes:RoundRectangle CornerRadius="26" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Items"
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               TextColor="#2E5B43" />
+                        <Editor x:Name="ItemEntry"
+                                Style="{StaticResource SectionEditorStyle}"
+                                Placeholder="Bags, paper towels, seasoning..."
+                                TextChanged="OnContentChanged" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="1"
+              ColumnDefinitions="Auto,*,Auto"
+              ColumnSpacing="14"
+              Padding="20,12,20,20">
+            <controls:AnimatedButton x:Name="BackButton"
+                                     Text="Back"
+                                     Clicked="OnBackClicked"
+                                     HorizontalOptions="Start"
+                                     Style="{StaticResource SecondaryActionButtonStyle}" />
+
+            <controls:AnimatedButton Grid.Column="1"
+                                     Text="Reminder"
+                                     Clicked="OnClockClicked"
+                                     HorizontalOptions="Center"
+                                     Style="{StaticResource SecondaryActionButtonStyle}" />
+
+            <controls:AnimatedButton x:Name="SaveButton"
+                                     Grid.Column="2"
+                                     Text="Save"
+                                     Clicked="OnSaveClicked"
+                                     HorizontalOptions="End"
+                                     IsVisible="False"
+                                     Style="{StaticResource PrimaryActionButtonStyle}" />
         </Grid>
-
-        <!-- Panels below the top entries: header + input area inside each panel -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,*" Padding="12" ColumnSpacing="24">
-            <Border Grid.Column="0" Style="{StaticResource SectionBorderStyle}" HorizontalOptions="Start" VerticalOptions="Start">
-                <Grid RowDefinitions="Auto,*">
-                    <Label Text="Meat" FontAttributes="Bold" BackgroundColor="#E8F5E9" HorizontalOptions="Fill" HorizontalTextAlignment="Center" />
-                    <!-- multi-line input area for meat -->
-                    <Editor x:Name="MeatEntry" Placeholder="Enter meat here..." AutoSize="TextChanges" Grid.Row="1" Margin="8" TextChanged="OnContentChanged" />
-                </Grid>
-            </Border>
-
-            <Border Grid.Column="1" Style="{StaticResource SectionBorderStyle}" HorizontalOptions="End" VerticalOptions="Start">
-                <Grid RowDefinitions="Auto,*">
-                    <Label Text="Vegetable" FontAttributes="Bold" BackgroundColor="#E8F5E9" HorizontalOptions="Fill" HorizontalTextAlignment="Center" />
-                    <!-- multi-line input area for vegetable -->
-                    <Editor x:Name="VegetableEntry" Placeholder="Enter vegetables here..." AutoSize="TextChanges" Grid.Row="1" Margin="8" TextChanged="OnContentChanged" />
-                </Grid>
-            </Border>
-        </Grid>
-
-        <!-- Bottom controls: back button left and circular control center -->
-        <Grid Grid.Row="2">
-            <HorizontalStackLayout HorizontalOptions="Start" Padding="12">
-                <Button Text="←" Clicked="OnBackClicked" WidthRequest="56" HeightRequest="56" CornerRadius="28" />
-            </HorizontalStackLayout>
-
-            <Button Text="Clock" Style="{StaticResource CircleButtonStyle}" HorizontalOptions="Center" VerticalOptions="Center" Clicked="OnClockClicked" />
-
-            <!-- Save button on the bottom right; visible only when creating or when content changed -->
-            <Button x:Name="SaveButton" Text="Save" Clicked="OnSaveClicked" HorizontalOptions="End" VerticalOptions="Center" IsVisible="False" Margin="12" />
-        </Grid>
-
     </Grid>
 
 </ContentPage>

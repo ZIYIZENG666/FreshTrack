@@ -19,12 +19,17 @@ public static class MauiProgram
         builder.Services.AddSingleton<IReminderService, FreshTrack.Platforms.Android.ReminderService>();
 #endif
 
+        builder.Services.AddSingleton<IShoppingListRepository, JsonShoppingListRepository>();
         builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<ListManagementPage>();
+        builder.Services.AddTransient<GroceryListDetailPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
 
-        return builder.Build();
+        var app = builder.Build();
+        ServiceHelper.Initialize(app.Services);
+        return app;
     }
 }

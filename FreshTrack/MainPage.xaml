@@ -1,55 +1,47 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="FreshTrack.MainPage">
+             x:Class="FreshTrack.MainPage"
+             Shell.NavBarIsVisible="False">
 
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#ECFDF5" Offset="0.0" />
-            <GradientStop Color="#D1FAE5" Offset="1.0" />
+            <GradientStop Color="#F4FCF5" Offset="0.0" />
+            <GradientStop Color="#D9F0E0" Offset="1.0" />
         </LinearGradientBrush>
     </ContentPage.Background>
 
-    <VerticalStackLayout
-        VerticalOptions="Center" 
-        HorizontalOptions="Center"
-        Spacing="20"
-        Padding="40">
+    <Grid Padding="28">
+        <VerticalStackLayout VerticalOptions="Center"
+                             HorizontalOptions="Center"
+                             Spacing="20"
+                             MaximumWidthRequest="340">
+            <Label Text="Fresh Track"
+                   FontSize="40"
+                   FontAttributes="Bold"
+                   TextColor="#214634"
+                   HorizontalTextAlignment="Center" />
 
-        <Label
-            Text="Fresh Track"
-            FontSize="32" 
-            FontAttributes="Bold"
-            TextColor="#2D3748"
-            HorizontalOptions="Center"/>
+            <Label Text="Welcome back. Tap the text below to open today's grocery reminders."
+                   FontSize="17"
+                   TextColor="#5A7866"
+                   HorizontalTextAlignment="Center" />
 
-        <Button
-            x:Name="StartButton"
-            Text="Start" 
-            FontSize="14"
-            BackgroundColor="#10B981"
-            TextColor="White"
-            CornerRadius="40"
-            WidthRequest="80"
-            HeightRequest="80"
-            Padding="0"
-            HorizontalOptions="Center"
-            VerticalOptions="Center"
-            Clicked="OnStartClicked"/>
+            <Border Padding="8,12"
+                    BackgroundColor="Transparent"
+                    StrokeThickness="0"
+                    HorizontalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnStartTapped" />
+                </Border.GestureRecognizers>
 
-        <Button
-            x:Name="ExitButton"
-            Text="Exit" 
-            FontSize="18"
-            BackgroundColor="#FF0000"
-            TextColor="White"
-            CornerRadius="30"
-            WidthRequest="60"
-            HeightRequest="60"
-            Padding="0"
-            HorizontalOptions="Center"
-            VerticalOptions="Center"
-            Clicked="OnExitClicked"/>
+                <Label Text="---&gt; Enter Today's List &lt;---"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       TextColor="#B02C5A42"
+                       HorizontalTextAlignment="Center" />
+            </Border>
 
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+    </Grid>
 </ContentPage>

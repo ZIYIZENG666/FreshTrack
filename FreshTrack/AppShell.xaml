@@ -4,11 +4,24 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:FreshTrack"
+    FlyoutBehavior="Disabled"
     Title="FreshTrack">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <TabBar>
+        <ShellContent
+            Title="Home"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="home" />
+
+        <ShellContent
+            Title="Lists"
+            ContentTemplate="{DataTemplate local:ListManagementPage}"
+            Route="lists" />
+
+        <ShellContent
+            Title="Details"
+            ContentTemplate="{DataTemplate local:GroceryListDetailPage}"
+            Route="details" />
+    </TabBar>
 
 </Shell>

@@ -2,106 +2,185 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
+             xmlns:controls="clr-namespace:FreshTrack.Controls"
              x:Class="FreshTrack.ListManagementPage"
              x:Name="RootPage"
              Title="List Management">
 
     <ContentPage.Background>
-        <SolidColorBrush Color="#DFF4E9" />
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F0FBF3" Offset="0" />
+            <GradientStop Color="#D9F2E0" Offset="1" />
+        </LinearGradientBrush>
     </ContentPage.Background>
 
-    <Border Stroke="#2E7D32" StrokeThickness="2" Padding="16">
-        <Border.Resources>
-            <ResourceDictionary>
-                <Style x:Key="PillButtonStyle" TargetType="Button">
-                    <Setter Property="WidthRequest" Value="220" />
-                    <Setter Property="HeightRequest" Value="56" />
-                    <Setter Property="CornerRadius" Value="28" />
-                    <Setter Property="BackgroundColor" Value="#FFFFFF" />
-                    <Setter Property="BorderColor" Value="#2E7D32" />
-                    <Setter Property="BorderWidth" Value="2" />
-                    <Setter Property="FontAttributes" Value="Bold" />
-                    <Setter Property="HorizontalOptions" Value="Center" />
-                    <Setter Property="Padding" Value="12,6" />
-                    <Setter Property="TextColor" Value="#000000" />
-                </Style>
-            </ResourceDictionary>
-        </Border.Resources>
-        <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="*">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="PillButtonStyle" TargetType="controls:AnimatedButton">
+                <Setter Property="WidthRequest" Value="220" />
+                <Setter Property="HeightRequest" Value="56" />
+                <Setter Property="CornerRadius" Value="28" />
+                <Setter Property="BackgroundColor" Value="#F9FFF9" />
+                <Setter Property="BorderColor" Value="#ABD2B7" />
+                <Setter Property="BorderWidth" Value="1" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="Padding" Value="16,8" />
+                <Setter Property="TextColor" Value="#35604A" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
-            <Label Grid.Row="0" Text="List Management" FontSize="26" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,6" />
+    <Grid Padding="20" RowDefinitions="Auto,*,Auto">
+        <VerticalStackLayout Grid.Row="0" Spacing="4" Margin="0,4,0,12">
+            <Label Text="List Management"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   TextColor="#2E5B43" />
+            <Label Text="Tap a card to open the list details."
+                   FontSize="13"
+                   TextColor="#6E8D7A" />
+        </VerticalStackLayout>
 
-            <ScrollView Grid.Row="1">
-                <VerticalStackLayout Spacing="18" HorizontalOptions="Center" VerticalOptions="Center">
-                    <CollectionView x:Name="ListcollectionView" ItemsSource="{Binding Lists}" SelectionMode="None" ItemsLayout="VerticalList">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Padding="0" HorizontalOptions="Center" VerticalOptions="Center">
-                                    <Grid ColumnDefinitions="Auto,Auto" VerticalOptions="Center" HorizontalOptions="Center">
-                                        <Grid Column="0">
-                                            <Grid WidthRequest="200" HeightRequest="80">
-                                                <shapes:Ellipse Stroke="Black" StrokeThickness="2" Fill="Transparent" />
-                                                <Label Text="{Binding Name}"
-                                                       HorizontalOptions="Center"
-                                                       VerticalOptions="Center"
-                                                       FontSize="18"
-                                                       FontAttributes="Bold" />
-                                                <!-- transparent overlay to capture clicks on the ellipse -->
-                                                <Button BackgroundColor="Transparent"
-                                                        BorderColor="Transparent"
-                                                        Opacity="0"
-                                                        Clicked="OnListClicked"
-                                                        CommandParameter="{Binding}" />
-                                            </Grid>
-                                        </Grid>
+        <CollectionView Grid.Row="1"
+                        x:Name="ListcollectionView"
+                        ItemsSource="{Binding Lists}"
+                        SelectionMode="None"
+                        Margin="0,2,0,0"
+                        ItemSizingStrategy="MeasureAllItems">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="14" />
+            </CollectionView.ItemsLayout>
 
-                                        <!-- delete X button on the right, visible only in delete mode -->
-                                        <Button Grid.Column="1"
-                                                Text="✕"
-                                                FontSize="18"
-                                                FontAttributes="Bold"
-                                                TextColor="White"
-                                                BackgroundColor="#E53E3E"
-                                                WidthRequest="40"
-                                                HeightRequest="40"
-                                                CornerRadius="20"
-                                                BorderWidth="0"
-                                                Clicked="OnDeleteItemClicked"
-                                                CommandParameter="{Binding}"
-                                                IsVisible="{Binding Source={x:Reference RootPage}, Path=IsDeleteMode}"
-                                                VerticalOptions="Center"
-                                                Margin="8,0,0,0" />
-                                    </Grid>
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
-            </ScrollView>
+            <CollectionView.EmptyView>
+                <Border Stroke="#B9DDC4"
+                        StrokeThickness="1"
+                        Padding="20">
+                    <Border.StrokeShape>
+                        <shapes:RoundRectangle CornerRadius="22" />
+                    </Border.StrokeShape>
+                    <Border.Background>
+                        <LinearGradientBrush EndPoint="1,1">
+                            <GradientStop Color="#FDFFFD" Offset="0" />
+                            <GradientStop Color="#F1FAF2" Offset="1" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Label Text="No lists yet. Add one to get started."
+                           HorizontalTextAlignment="Center"
+                           TextColor="#6E8D7A"
+                           FontSize="14" />
+                </Border>
+            </CollectionView.EmptyView>
 
-            <VerticalStackLayout Grid.Row="2" Spacing="18" HorizontalOptions="Center" Margin="0,12">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Padding="0,2">
+                        <Border Grid.Column="0"
+                                Stroke="#B8DEC1"
+                                StrokeThickness="1"
+                                Padding="16,14"
+                                MinimumHeightRequest="84">
+                            <Border.StrokeShape>
+                                <shapes:RoundRectangle CornerRadius="22" />
+                            </Border.StrokeShape>
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="1,1">
+                                    <GradientStop Color="#FDFFFD" Offset="0" />
+                                    <GradientStop Color="#EEF9F0" Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.Shadow>
+                                <Shadow Brush="#1C4C7A55" Offset="0,8" Radius="18" Opacity="0.16" />
+                            </Border.Shadow>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnListTapped"
+                                                      CommandParameter="{Binding}" />
+                            </Border.GestureRecognizers>
 
-                <!-- Simple pill-shaped Add List button (uses shared PillButtonStyle) -->
-                <Button x:Name="AddListButton"
-                        Text="Add List"
-                        Clicked="OnAddListClicked"
-                        Style="{StaticResource PillButtonStyle}" />
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <Border WidthRequest="42"
+                                        HeightRequest="42"
+                                        Stroke="#C6DCCA"
+                                        StrokeThickness="1.5"
+                                        BackgroundColor="#F9FFF9"
+                                        VerticalOptions="Center">
+                                    <Border.StrokeShape>
+                                        <shapes:RoundRectangle CornerRadius="21" />
+                                    </Border.StrokeShape>
+                                    <Border.Shadow>
+                                        <Shadow Brush="#16000000" Offset="0,3" Radius="8" Opacity="0.1" />
+                                    </Border.Shadow>
+                                    <Label Text="{Binding BadgeText}"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="#4F7A62" />
+                                </Border>
 
-                <!-- Simple pill-shaped Delete List button -->
-                <Button x:Name="DeleteListButton"
-                        Text="Delete List"
-                        Clicked="OnEnterDeleteModeClicked"
-                        Style="{StaticResource PillButtonStyle}" />
-                <Button x:Name="CancelDeleteButton" Text="Cancel" Clicked="OnCancelDeleteModeClicked" Style="{StaticResource PillButtonStyle}" IsVisible="False" />
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="4"
+                                                     VerticalOptions="Center">
+                                    <Label Text="{Binding Name}"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="#2F5B42"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="1" />
+                                    <Label Text="{Binding CardTimestamp}"
+                                           FontSize="12"
+                                           TextColor="#7F9A87" />
+                                </VerticalStackLayout>
 
-                <HorizontalStackLayout x:Name="DeletePanel" IsVisible="False" Spacing="12" HorizontalOptions="Center">
-                    <Button Text="Confirm Delete" BackgroundColor="Red" TextColor="White" Clicked="OnConfirmDeleteClicked" WidthRequest="140"/>
-                    <Button Text="Cancel" Clicked="OnCancelDeleteClicked" WidthRequest="140"/>
-                </HorizontalStackLayout>
+                                <Label Grid.Column="2"
+                                       Text=">"
+                                       FontSize="22"
+                                       TextColor="#679072"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
 
-            </VerticalStackLayout>
+                        <controls:AnimatedButton Grid.Column="1"
+                                                 Text="X"
+                                                 FontSize="18"
+                                                 FontAttributes="Bold"
+                                                 TextColor="White"
+                                                 BackgroundColor="#E05A5A"
+                                                 WidthRequest="42"
+                                                 HeightRequest="42"
+                                                 CornerRadius="21"
+                                                 BorderWidth="0"
+                                                 Clicked="OnDeleteItemClicked"
+                                                 CommandParameter="{Binding}"
+                                                 IsVisible="{Binding Source={x:Reference RootPage}, Path=IsDeleteMode}"
+                                                 VerticalOptions="Center" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
-        </Grid>
-    </Border>
+        <VerticalStackLayout Grid.Row="2"
+                             Spacing="16"
+                             HorizontalOptions="Center"
+                             Margin="0,18,0,0">
+            <controls:AnimatedButton x:Name="AddListButton"
+                                     Text="Add List"
+                                     Clicked="OnAddListClicked"
+                                     BackgroundColor="#E7F7EB"
+                                     BorderColor="#91C2A1"
+                                     Style="{StaticResource PillButtonStyle}" />
+
+            <controls:AnimatedButton x:Name="DeleteListButton"
+                                     Text="Delete List"
+                                     Clicked="OnEnterDeleteModeClicked"
+                                     Style="{StaticResource PillButtonStyle}" />
+
+            <controls:AnimatedButton x:Name="CancelDeleteButton"
+                                     Text="Cancel"
+                                     Clicked="OnCancelDeleteModeClicked"
+                                     Style="{StaticResource PillButtonStyle}"
+                                     IsVisible="False" />
+        </VerticalStackLayout>
+    </Grid>
 
 </ContentPage>

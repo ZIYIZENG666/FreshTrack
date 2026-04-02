@@ -1,4 +1,3 @@
-﻿
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -6,128 +5,160 @@ using Android.OS;
 using AndroidX.Core.App;
 using FreshTrack;
 using Microsoft.Maui.ApplicationModel;
-using System;
-using System.Threading.Tasks;
 
 #pragma warning disable CA1416
-#pragma warning disable CS0618 
+#pragma warning disable CS0618
 
 namespace FreshTrack.Platforms.Android;
 
 public class ReminderService : IReminderService
 {
-    private const string REMINDER_ACTION = "com.freshtrack.REMINDER_ACTION";
+    private const string ReminderAction = "com.freshtrack.REMINDER_ACTION";
+    private const int NotificationPermissionRequestCode = 1001;
 
     public void SetReminder(DateTime triggerTime, string title, string message, int listId = 0)
     {
         NotificationHelper.CreateNotificationChannel();
 
-        DateTime localTime = triggerTime.Kind == DateTimeKind.Utc
-            ? triggerTime.ToLocalTime()
-            : triggerTime;
-
-        System.Diagnostics.Debug.WriteLine($"===== 闹钟设置 =====");
-        System.Diagnostics.Debug.WriteLine($"传入时间: {triggerTime} (Kind: {triggerTime.Kind})");
-        System.Diagnostics.Debug.WriteLine($"本地时间: {localTime}");
-        System.Diagnostics.Debug.WriteLine($"====================");
-
-        var epochStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        long triggerTimeMs = (long)(localTime.ToUniversalTime() - epochStart).TotalMilliseconds;
-
-        var androidAppContext = global::Android.App.Application.Context;
-        if (androidAppContext == null) return;
-
-        var intent = new Intent(androidAppContext, typeof(ReminderBroadcastReceiver));
-        intent.SetAction(REMINDER_ACTION);
-        intent.PutExtra("Title", title);
-        intent.PutExtra("Message", message);
-        intent.PutExtra("NotificationId", listId);
-
-        var pendingIntentFlags = PendingIntentFlags.UpdateCurrent;
-        if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
-            pendingIntentFlags |= PendingIntentFlags.Immutable;
-
-        PendingIntent? pendingIntent = null;
-        try
+        var context = global::Android.App.Application.Context;
+        if (context is null)
         {
-            pendingIntent = PendingIntent.GetBroadcast(
-                androidAppContext,
-                listId,
-                intent,
-                pendingIntentFlags);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"PendingIntent 创建失败: {ex.Message}");
             return;
         }
 
-        var alarmManager = androidAppContext.GetSystemService(Context.AlarmService) as AlarmManager;
-        if (alarmManager != null && pendingIntent != null)
+        var pendingIntent = CreatePendingIntent(context, title, message, listId);
+        if (pendingIntent is null)
         {
-            try
-            {
-                if (Build.VERSION.SdkInt >= BuildVersionCodes.S)
-                {
-                    if (alarmManager.CanScheduleExactAlarms())
-                    {
-                        alarmManager.SetExactAndAllowWhileIdle(AlarmType.RtcWakeup, triggerTimeMs, pendingIntent);
-                    }
-                    else
-                    {
-                        alarmManager.SetAndAllowWhileIdle(AlarmType.RtcWakeup, triggerTimeMs, pendingIntent);
-                    }
-                }
-                else if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
-                {
-                    alarmManager.SetExactAndAllowWhileIdle(AlarmType.RtcWakeup, triggerTimeMs, pendingIntent);
-                }
-                else
-                {
-                    alarmManager.SetExact(AlarmType.RtcWakeup, triggerTimeMs, pendingIntent);
-                }
-                System.Diagnostics.Debug.WriteLine("✅ 闹钟已设置到系统");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"❌ 设置闹钟失败: {ex.Message}");
-            }
+            return;
+        }
+
+        var alarmManager = context.GetSystemService(Context.AlarmService) as AlarmManager;
+        if (alarmManager is null)
+        {
+            return;
+        }
+
+        var localTime = triggerTime.Kind == DateTimeKind.Utc
+            ? triggerTime.ToLocalTime()
+            : triggerTime;
+        var triggerTimeMs = ToUnixTimeMilliseconds(localTime);
+
+        try
+        {
+            ScheduleAlarm(alarmManager, triggerTimeMs, pendingIntent);
+            System.Diagnostics.Debug.WriteLine("Reminder scheduled successfully.");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to schedule reminder: {ex.Message}");
         }
     }
 
     public async Task<bool> RequestNotificationPermissionAsync()
     {
-        if (Build.VERSION.SdkInt >= BuildVersionCodes.Tiramisu)
+        if (Build.VERSION.SdkInt < BuildVersionCodes.Tiramisu)
         {
-            var androidAppContext = global::Android.App.Application.Context;
-            if (androidAppContext == null) return false;
-
-            string notificationPermission = global::Android.Manifest.Permission.PostNotifications;
-            Permission currentPermission = ActivityCompat.CheckSelfPermission(androidAppContext, notificationPermission);
-
-            if (currentPermission != Permission.Granted)
-            {
-                var currentActivity = Platform.CurrentActivity;
-                if (currentActivity == null) return false;
-
-                await MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    ActivityCompat.RequestPermissions(
-                        currentActivity,
-                        new[] { notificationPermission },
-                        1001);
-                });
-
-                await Task.Delay(1500);
-                currentPermission = ActivityCompat.CheckSelfPermission(androidAppContext, notificationPermission);
-            }
-
-            return currentPermission == Permission.Granted;
+            return true;
         }
 
-        return true;
+        var context = global::Android.App.Application.Context;
+        if (context is null)
+        {
+            return false;
+        }
+
+        var notificationPermission = global::Android.Manifest.Permission.PostNotifications;
+        if (HasPermission(context, notificationPermission))
+        {
+            return true;
+        }
+
+        var currentActivity = Platform.CurrentActivity;
+        if (currentActivity is null)
+        {
+            return false;
+        }
+
+        await MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            ActivityCompat.RequestPermissions(
+                currentActivity,
+                new[] { notificationPermission },
+                NotificationPermissionRequestCode);
+        });
+
+        await Task.Delay(1500);
+        return HasPermission(context, notificationPermission);
+    }
+
+    private static PendingIntent? CreatePendingIntent(Context context, string title, string message, int listId)
+    {
+        try
+        {
+            var intent = new Intent(context, typeof(ReminderBroadcastReceiver));
+            intent.SetAction(ReminderAction);
+            intent.PutExtra("Title", title);
+            intent.PutExtra("Message", message);
+            intent.PutExtra("NotificationId", listId);
+
+            return PendingIntent.GetBroadcast(
+                context,
+                listId,
+                intent,
+                GetPendingIntentFlags());
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to create pending intent: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static long ToUnixTimeMilliseconds(DateTime localTime)
+    {
+        var epochStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        return (long)(localTime.ToUniversalTime() - epochStart).TotalMilliseconds;
+    }
+
+    private static void ScheduleAlarm(AlarmManager alarmManager, long triggerTimeMs, PendingIntent pendingIntent)
+    {
+        if (Build.VERSION.SdkInt >= BuildVersionCodes.S)
+        {
+            if (alarmManager.CanScheduleExactAlarms())
+            {
+                alarmManager.SetExactAndAllowWhileIdle(AlarmType.RtcWakeup, triggerTimeMs, pendingIntent);
+                return;
+            }
+
+            alarmManager.SetAndAllowWhileIdle(AlarmType.RtcWakeup, triggerTimeMs, pendingIntent);
+            return;
+        }
+
+        if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
+        {
+            alarmManager.SetExactAndAllowWhileIdle(AlarmType.RtcWakeup, triggerTimeMs, pendingIntent);
+            return;
+        }
+
+        alarmManager.SetExact(AlarmType.RtcWakeup, triggerTimeMs, pendingIntent);
+    }
+
+    private static PendingIntentFlags GetPendingIntentFlags()
+    {
+        var flags = PendingIntentFlags.UpdateCurrent;
+        if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
+        {
+            flags |= PendingIntentFlags.Immutable;
+        }
+
+        return flags;
+    }
+
+    private static bool HasPermission(Context context, string permission)
+    {
+        return ActivityCompat.CheckSelfPermission(context, permission) == Permission.Granted;
     }
 }
 
-#pragma warning restore CA1416
 #pragma warning restore CS0618
+#pragma warning restore CA1416

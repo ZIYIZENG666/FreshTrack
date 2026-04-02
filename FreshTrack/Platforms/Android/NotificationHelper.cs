@@ -1,4 +1,4 @@
-﻿using Android.App;
+using Android.App;
 using Android.Content;
 using Android.OS;
 using AndroidX.Core.App;
@@ -10,121 +10,114 @@ namespace FreshTrack.Platforms.Android;
 
 public static class NotificationHelper
 {
-    private const string CHANNEL_ID = "GroceryReminderChannel";
-    private const string CHANNEL_NAME = "Grocery List Reminders";
-    private const string CHANNEL_DESCRIPTION = "Reminders for grocery list items";
-
+    private const string ChannelId = "GroceryReminderChannel";
+    private const string ChannelName = "Grocery List Reminders";
+    private const string ChannelDescription = "Reminders for grocery list items";
+    private const string DefaultTitle = "Grocery List Reminder";
+    private const string DefaultMessage = "It's time to check your grocery list!";
 
     public static void CreateNotificationChannel()
     {
-        if (Build.VERSION.SdkInt < BuildVersionCodes.O) return;
-
-        var androidAppContext = global::Android.App.Application.Context;
-        if (androidAppContext is null) return;
-
-        var notificationService = androidAppContext.GetSystemService(Context.NotificationService);
-        if (notificationService is null) return;
-
-        var notificationManager = notificationService as NotificationManager;
-        if (notificationManager is null) return;
-
-        NotificationChannel channel;
-        try
-        {
-            channel = new NotificationChannel(
-                CHANNEL_ID,
-                CHANNEL_NAME,
-                NotificationImportance.Default)
-            {
-                Description = CHANNEL_DESCRIPTION ?? string.Empty 
-            };
-        }
-        catch
+        if (Build.VERSION.SdkInt < BuildVersionCodes.O)
         {
             return;
         }
 
-        notificationManager.CreateNotificationChannel(channel!); 
-    }
-
-
-    /// <param name="context">上下文</param>
-    /// <param name="title">通知标题</param>
-    /// <param name="message">通知内容</param>
-    /// <param name="notificationId">唯一通知ID</param>
-    public static void ShowNotification(Context? context, string title, string message, int notificationId)
-    {
-        if (context is null) return;
-
-        var packageName = context.PackageName;
-        if (string.IsNullOrEmpty(packageName))
+        var context = global::Android.App.Application.Context;
+        var notificationManager = context?.GetSystemService(Context.NotificationService) as NotificationManager;
+        if (notificationManager is null)
         {
-            packageName = context.PackageName!; 
-            if (string.IsNullOrEmpty(packageName)) return;
+            return;
         }
 
-        var packageManager = context.PackageManager;
-        if (packageManager is null) return;
-
-        var intent = packageManager.GetLaunchIntentForPackage(packageName);
-        intent ??= new Intent(); 
-        intent.AddFlags(ActivityFlags.ClearTop); 
-
-        var pendingIntentFlags = PendingIntentFlags.UpdateCurrent;
-        if (Build.VERSION.SdkInt >= BuildVersionCodes.S)
-        {
-            pendingIntentFlags |= PendingIntentFlags.Immutable;
-        }
-        else if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
-        {
-            pendingIntentFlags |= PendingIntentFlags.Immutable;
-        }
-
-        PendingIntent? pendingIntent = null;
         try
         {
-            pendingIntent = PendingIntent.GetActivity(
-                context,
-                notificationId,
-                intent,
-                pendingIntentFlags);
+            var channel = new NotificationChannel(ChannelId, ChannelName, NotificationImportance.Default)
+            {
+                Description = ChannelDescription
+            };
+
+            notificationManager.CreateNotificationChannel(channel);
         }
         catch
         {
-            pendingIntent = null;
+        }
+    }
+
+    public static void ShowNotification(Context? context, string title, string message, int notificationId)
+    {
+        if (context is null)
+        {
+            return;
         }
 
-        var safeTitle = title ?? "Grocery List Reminder";
-        var safeMessage = message ?? "It's time to check your grocery list!";
-        var safeChannelId = CHANNEL_ID ?? "default_channel"; 
+        var launchIntent = GetLaunchIntent(context);
+        if (launchIntent is null)
+        {
+            return;
+        }
 
-        var nonNullContext = context!;
+        var builder = new NotificationCompat.Builder(context, ChannelId);
+        builder.SetContentTitle(string.IsNullOrWhiteSpace(title) ? DefaultTitle : title);
+        builder.SetContentText(string.IsNullOrWhiteSpace(message) ? DefaultMessage : message);
+        builder.SetSmallIcon(global::Android.Resource.Drawable.IcDialogAlert);
+        builder.SetAutoCancel(true);
+        builder.SetPriority(NotificationCompat.PriorityDefault);
 
-        var notificationIcon = global::Android.Resource.Drawable.IcDialogAlert!;
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(nonNullContext, safeChannelId);
-
-        builder = builder.SetContentTitle(safeTitle)!; 
-        builder = builder.SetContentText(safeMessage)!; 
-        builder = builder.SetSmallIcon(notificationIcon)!; 
-        builder = builder.SetAutoCancel(true)!; 
-        builder = builder.SetPriority(NotificationCompat.PriorityDefault)!;
-
-        if (builder is null) return;
-
+        var pendingIntent = CreateContentIntent(context, launchIntent, notificationId);
         if (pendingIntent is not null)
         {
-            builder.SetContentIntent(pendingIntent);
+            _ = builder.SetContentIntent(pendingIntent);
         }
 
         var notificationManager = NotificationManagerCompat.From(context);
-        if (notificationManager is null) return;
-
         var notification = builder.Build();
-        if (notification is not null)
+        if (notificationManager is null || notification is null)
         {
-            notificationManager.Notify(notificationId, notification!); // 非空断言
+            return;
         }
+
+        notificationManager.Notify(notificationId, notification);
+    }
+
+    private static Intent? GetLaunchIntent(Context context)
+    {
+        if (context.PackageManager is null || string.IsNullOrWhiteSpace(context.PackageName))
+        {
+            return null;
+        }
+
+        var launchIntent = context.PackageManager.GetLaunchIntentForPackage(context.PackageName) ?? new Intent();
+        launchIntent.AddFlags(ActivityFlags.ClearTop);
+
+        return launchIntent;
+    }
+
+    private static PendingIntent? CreateContentIntent(Context context, Intent intent, int notificationId)
+    {
+        try
+        {
+            return PendingIntent.GetActivity(
+                context,
+                notificationId,
+                intent,
+                GetPendingIntentFlags());
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static PendingIntentFlags GetPendingIntentFlags()
+    {
+        var flags = PendingIntentFlags.UpdateCurrent;
+        if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
+        {
+            flags |= PendingIntentFlags.Immutable;
+        }
+
+        return flags;
     }
 }
 

@@ -1,5 +1,4 @@
-﻿﻿using System;
-using FreshTrack;
+﻿using System;
 using Microsoft.Maui.Controls;
 
 namespace FreshTrack
@@ -11,16 +10,9 @@ namespace FreshTrack
             InitializeComponent();
         }
 
-        private async void OnStartClicked(object? sender, EventArgs e)
+        private async void OnStartTapped(object? sender, TappedEventArgs e)
         {
-            await Navigation.PushAsync(new ListManagementPage());
-        }
-
-        private void OnExitClicked(object? sender, EventArgs e)
-        {
-            // Force the process to exit on all platforms.
-            // Note: On iOS this is discouraged and may lead to App Store rejection.
-            System.Environment.Exit(0);
+            await Shell.Current.GoToAsync($"//{AppRoutes.Lists}");
         }
     }
 }

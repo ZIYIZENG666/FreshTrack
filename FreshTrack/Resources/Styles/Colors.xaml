@@ -27,11 +27,19 @@
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
 
+    <Color x:Key="FreshPrimary">#2E7D32</Color>
+    <Color x:Key="FreshAccent">#10B981</Color>
+    <Color x:Key="FreshSurface">#FFFFFF</Color>
+    <Color x:Key="FreshMuted">#6B7280</Color>
+
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
     <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>
     <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}"/>
     <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}"/>
+    <SolidColorBrush x:Key="FreshPrimaryBrush" Color="{StaticResource FreshPrimary}"/>
+    <SolidColorBrush x:Key="FreshAccentBrush" Color="{StaticResource FreshAccent}"/>
+    <SolidColorBrush x:Key="FreshSurfaceBrush" Color="{StaticResource FreshSurface}"/>
 
     <SolidColorBrush x:Key="Gray100Brush" Color="{StaticResource Gray100}"/>
     <SolidColorBrush x:Key="Gray200Brush" Color="{StaticResource Gray200}"/>
