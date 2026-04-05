@@ -1,9 +1,12 @@
+using System.Security.Cryptography;
+
 namespace FreshTrack;
 
 public partial class GroceryListDetailPage : ContentPage
 {
     private const string DefaultReminderListName = "Grocery List";
     private const string ReminderMessage = "It's time to check your grocery list!";
+    private static readonly TimeSpan DefaultReminderLeadTime = TimeSpan.FromMinutes(30);
 
     private ShoppingList? _workingList;
     private Func<ShoppingList, Task>? _onSave;
@@ -17,6 +20,11 @@ public partial class GroceryListDetailPage : ContentPage
     private string _originalItem = string.Empty;
     private string _originalAddress = string.Empty;
     private string _originalName = string.Empty;
+    private DateTime? _originalReminderAt;
+    private bool _originalHasReminder;
+    private bool _hasReminder;
+    private bool _isInitializing;
+    private readonly int _temporaryReminderId = RandomNumberGenerator.GetInt32(1, int.MaxValue);
 
     public GroceryListDetailPage()
     {
@@ -49,10 +57,12 @@ public partial class GroceryListDetailPage : ContentPage
 
     private void InitializePage(ShoppingList list, Func<ShoppingList, Task> onSave, bool isNew, bool closeAfterSave)
     {
-        _workingList = CloneList(list);
+        _isInitializing = true;
+        _workingList = list.Clone();
         _onSave = onSave;
         _isNew = isNew;
         _closeAfterSave = closeAfterSave;
+        _hasReminder = list.ReminderAt is not null;
         BindingContext = _workingList;
 
         NameEntry.Text = _workingList.Name;
@@ -61,26 +71,12 @@ public partial class GroceryListDetailPage : ContentPage
         DrinkEntry.Text = _workingList.Drink;
         ItemEntry.Text = _workingList.Item;
         AddressEntry.Text = _workingList.Address;
+        UpdateReminderDisplay();
 
-        CaptureOriginalValues(list);
-        SaveButton.IsVisible = isNew;
+        CaptureOriginalValues(_workingList);
         BackButton.IsVisible = closeAfterSave;
-    }
-
-    private static ShoppingList CloneList(ShoppingList list)
-    {
-        return new ShoppingList
-        {
-            Id = list.Id,
-            Name = list.Name,
-            Vegetable = list.Vegetable,
-            Meat = list.Meat,
-            Drink = list.Drink,
-            Item = list.Item,
-            Address = list.Address,
-            CreatedAt = list.CreatedAt,
-            LastUpdatedAt = list.LastUpdatedAt
-        };
+        _isInitializing = false;
+        UpdateSaveState();
     }
 
     private void CaptureOriginalValues(ShoppingList list)
@@ -91,73 +87,85 @@ public partial class GroceryListDetailPage : ContentPage
         _originalDrink = list.Drink;
         _originalItem = list.Item;
         _originalAddress = list.Address;
+        _originalHasReminder = _hasReminder;
+        _originalReminderAt = _hasReminder ? NormalizeReminder(list.ReminderAt) : null;
     }
 
-    private async void OnClockClicked(object? sender, EventArgs e)
+    private void OnClockClicked(object? sender, EventArgs e)
     {
-        var reminderService = GetReminderService();
-        if (reminderService is null)
-        {
-            await DisplayAlertAsync("Error", "Reminder service not available", "OK");
-            return;
-        }
-
-        if (!await reminderService.RequestNotificationPermissionAsync())
-        {
-            await DisplayAlertAsync("Permission Required", "Please grant notification permission to use reminders", "OK");
-            return;
-        }
-
-        var selectedTime = await PromptForReminderTimeAsync();
-        if (selectedTime is null)
-        {
-            return;
-        }
-
-        var triggerTime = BuildTriggerTime(selectedTime.Value);
-        var reminderTitle = $"Reminder: {GetReminderListName()}";
-        var listId = _workingList?.Id ?? Random.Shared.Next(1000, 9999);
-
-        reminderService.SetReminder(triggerTime, reminderTitle, ReminderMessage, listId);
-        await DisplayAlertAsync("Success", $"Reminder set for {triggerTime:HH:mm}", "OK");
+        InitializeReminderInputs(_workingList?.ReminderAt);
+        ReminderSelectionOverlay.IsVisible = true;
     }
 
-    private async Task<TimeSpan?> PromptForReminderTimeAsync()
+    private void InitializeReminderInputs(DateTime? reminderAt)
     {
-        var timeInput = await DisplayPromptAsync(
-            "Set Reminder Time",
-            "Enter time in HH:mm format (e.g., 14:30)",
-            placeholder: "HH:mm",
-            initialValue: DateTime.Now.ToString("HH:mm"));
+        if (ReminderDatePicker is null || ReminderTimePicker is null)
+        {
+            return;
+        }
 
-        if (string.IsNullOrWhiteSpace(timeInput))
+        var defaultReminder = reminderAt is DateTime existingReminder
+            ? ShoppingList.NormalizeReminderTime(existingReminder)
+            : DateTime.Now.Add(DefaultReminderLeadTime);
+        if (defaultReminder < DateTime.Now)
+        {
+            defaultReminder = DateTime.Now.Add(DefaultReminderLeadTime);
+        }
+
+        ReminderDatePicker.MinimumDate = DateTime.Today;
+        ReminderDatePicker.Date = defaultReminder.Date;
+        ReminderTimePicker.Time = defaultReminder.TimeOfDay;
+    }
+
+    private void UpdateReminderDisplay()
+    {
+        if (ReminderDateDisplayLabel is null || ReminderTimeDisplayLabel is null || ReminderStatusLabel is null)
+        {
+            return;
+        }
+
+        if (_workingList?.ReminderAt is not DateTime reminderAt)
+        {
+            ReminderDateDisplayLabel.Text = "Not set";
+            ReminderTimeDisplayLabel.Text = "--:--";
+            ReminderStatusLabel.Text = "Tap Reminder to set the schedule.";
+            return;
+        }
+
+        var localReminder = ShoppingList.NormalizeReminderTime(reminderAt);
+        ReminderDateDisplayLabel.Text = localReminder.ToString("yyyy-MM-dd");
+        ReminderTimeDisplayLabel.Text = localReminder.ToString("HH:mm");
+        ReminderStatusLabel.Text = "Tap Reminder to change the schedule.";
+    }
+
+    private async Task<DateTime?> BuildTriggerTime()
+    {
+        if (ReminderDatePicker is null || ReminderTimePicker is null)
         {
             return null;
         }
 
-        if (TimeSpan.TryParse(timeInput, out var selectedTime))
+        var selectedDate = ReminderDatePicker.Date;
+        if (selectedDate is null)
         {
-            return selectedTime;
+            await DisplayAlertAsync("Invalid Date", "Please choose a valid reminder date.", "OK");
+            return null;
         }
 
-        await DisplayAlertAsync("Invalid Time", "Please enter a valid time (HH:mm)", "OK");
-        return null;
-    }
-
-    private static DateTime BuildTriggerTime(TimeSpan selectedTime)
-    {
-        var currentTime = DateTime.Now;
-        var triggerTime = new DateTime(
-            currentTime.Year,
-            currentTime.Month,
-            currentTime.Day,
-            selectedTime.Hours,
-            selectedTime.Minutes,
-            selectedTime.Seconds);
-
-        if (triggerTime < currentTime)
+        var selectedTime = ReminderTimePicker.Time;
+        if (selectedTime is null)
         {
-            triggerTime = triggerTime.AddDays(1);
+            await DisplayAlertAsync("Invalid Time", "Please choose a valid reminder time.", "OK");
+            return null;
+        }
+
+        var triggerTime = DateTime.SpecifyKind(
+            selectedDate.Value.Date.Add(selectedTime.Value),
+            DateTimeKind.Local);
+        if (triggerTime <= DateTime.Now)
+        {
+            await DisplayAlertAsync("Invalid Time", "Please choose a future date and time for the reminder.", "OK");
+            return null;
         }
 
         return triggerTime;
@@ -211,6 +219,8 @@ public partial class GroceryListDetailPage : ContentPage
         var drink = DrinkEntry?.Text?.Trim() ?? string.Empty;
         var item = ItemEntry?.Text?.Trim() ?? string.Empty;
         var address = AddressEntry?.Text?.Trim() ?? string.Empty;
+        var reminderChanged = HasReminderChanged();
+        DateTime? reminderTimeToSave = _workingList.ReminderAt;
 
         if (string.IsNullOrWhiteSpace(vegetable)
             && string.IsNullOrWhiteSpace(meat)
@@ -221,24 +231,43 @@ public partial class GroceryListDetailPage : ContentPage
             return;
         }
 
+        if (reminderChanged)
+        {
+            reminderTimeToSave = await BuildTriggerTime();
+            if (reminderTimeToSave is null)
+            {
+                return;
+            }
+        }
+
         ApplyInputs(_workingList, nameInput, vegetable, meat, drink, item, address);
+        _workingList.ReminderAt = _hasReminder ? reminderTimeToSave : null;
         PrepareTimestampsForSave(_workingList);
         SaveButton.IsEnabled = false;
 
         try
         {
             await _onSave(_workingList);
+            var reminderUpdated = await ApplyReminderIfNeededAsync(_workingList, reminderChanged);
             CaptureOriginalValues(_workingList);
             _isNew = false;
-            SaveButton.IsVisible = false;
+            UpdateSaveState();
 
             if (_closeAfterSave)
             {
+                if (!reminderUpdated)
+                {
+                    await DisplayAlertAsync("Reminder Not Updated", "The list was saved, but the reminder could not be updated on this device.", "OK");
+                }
+
                 await Navigation.PopAsync();
                 return;
             }
 
-            await DisplayAlertAsync("Saved", $"'{_workingList.Name}' has been saved.", "OK");
+            var saveMessage = reminderUpdated
+                ? $"'{_workingList.Name}' has been saved."
+                : $"'{_workingList.Name}' has been saved, but the reminder could not be updated on this device.";
+            await DisplayAlertAsync("Saved", saveMessage, "OK");
         }
         catch
         {
@@ -299,7 +328,7 @@ public partial class GroceryListDetailPage : ContentPage
 
     private void OnContentChanged(object? sender, TextChangedEventArgs e)
     {
-        SaveButton.IsVisible = _isNew || HasContentChanged();
+        UpdateSaveState();
     }
 
     private bool HasContentChanged()
@@ -319,6 +348,95 @@ public partial class GroceryListDetailPage : ContentPage
             || address != _originalAddress;
     }
 
+    private bool HasReminderChanged()
+    {
+        if (_originalHasReminder != _hasReminder)
+        {
+            return true;
+        }
+
+        if (!_hasReminder)
+        {
+            return false;
+        }
+
+        return NormalizeReminder(_originalReminderAt) != NormalizeReminder(_workingList?.ReminderAt);
+    }
+
+    private static DateTime? NormalizeReminder(DateTime? reminderAt)
+    {
+        return reminderAt is DateTime value
+            ? ShoppingList.NormalizeReminderTime(value)
+            : null;
+    }
+
+    private async Task<bool> ApplyReminderIfNeededAsync(ShoppingList list, bool reminderChanged)
+    {
+        if (!reminderChanged)
+        {
+            return true;
+        }
+
+        var reminderService = GetReminderService();
+        if (reminderService is null)
+        {
+            return false;
+        }
+
+        if (!await reminderService.RequestNotificationPermissionAsync())
+        {
+            return false;
+        }
+
+        var listId = list.Id > 0 ? list.Id : _temporaryReminderId;
+        reminderService.CancelReminder(listId);
+
+        if (list.ReminderAt is not DateTime reminderAt)
+        {
+            return true;
+        }
+
+        var reminderTitle = $"Reminder: {GetReminderListName()}";
+        reminderService.SetReminder(reminderAt, reminderTitle, ReminderMessage, listId);
+        return true;
+    }
+
+    private void UpdateSaveState()
+    {
+        if (_isInitializing || SaveButton is null)
+        {
+            return;
+        }
+
+        var hasPendingChanges = HasContentChanged() || HasReminderChanged();
+        SaveButton.IsVisible = hasPendingChanges;
+        SaveButton.IsEnabled = hasPendingChanges;
+    }
+
+    private void OnReminderCancelClicked(object? sender, EventArgs e)
+    {
+        ReminderSelectionOverlay.IsVisible = false;
+    }
+
+    private async void OnReminderApplyClicked(object? sender, EventArgs e)
+    {
+        var triggerTime = await BuildTriggerTime();
+        if (triggerTime is null)
+        {
+            return;
+        }
+
+        _hasReminder = true;
+        if (_workingList is not null)
+        {
+            _workingList.ReminderAt = triggerTime.Value;
+        }
+
+        ReminderSelectionOverlay.IsVisible = false;
+        UpdateReminderDisplay();
+        UpdateSaveState();
+    }
+
     private async Task SaveStandaloneListAsync(ShoppingList saved)
     {
         var existingLists = (await _shoppingListRepository.LoadAsync()).ToList();
@@ -326,11 +444,11 @@ public partial class GroceryListDetailPage : ContentPage
 
         if (existingIndex >= 0)
         {
-            existingLists[existingIndex] = CloneList(saved);
+            existingLists[existingIndex] = saved.Clone();
         }
         else
         {
-            existingLists.Add(CloneList(saved));
+            existingLists.Add(saved.Clone());
         }
 
         await _shoppingListRepository.SaveAsync(existingLists);

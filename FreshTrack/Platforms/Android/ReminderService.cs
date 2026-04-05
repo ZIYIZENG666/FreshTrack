@@ -1,6 +1,5 @@
 using Android.App;
 using Android.Content;
-using Android.Content.PM;
 using Android.OS;
 using AndroidX.Core.App;
 using FreshTrack;
@@ -14,7 +13,27 @@ namespace FreshTrack.Platforms.Android;
 public class ReminderService : IReminderService
 {
     private const string ReminderAction = "com.freshtrack.REMINDER_ACTION";
-    private const int NotificationPermissionRequestCode = 1001;
+
+    public void CancelReminder(int listId)
+    {
+        var context = global::Android.App.Application.Context;
+        if (context is null)
+        {
+            return;
+        }
+
+        var pendingIntent = CreatePendingIntent(context, string.Empty, string.Empty, listId);
+        if (pendingIntent is null)
+        {
+            return;
+        }
+
+        var alarmManager = context.GetSystemService(Context.AlarmService) as AlarmManager;
+        alarmManager?.Cancel(pendingIntent);
+        pendingIntent.Cancel();
+        var notificationManager = NotificationManagerCompat.From(context);
+        notificationManager?.Cancel(listId);
+    }
 
     public void SetReminder(DateTime triggerTime, string title, string message, int listId = 0)
     {
@@ -38,9 +57,7 @@ public class ReminderService : IReminderService
             return;
         }
 
-        var localTime = triggerTime.Kind == DateTimeKind.Utc
-            ? triggerTime.ToLocalTime()
-            : triggerTime;
+        var localTime = ShoppingList.NormalizeReminderTime(triggerTime);
         var triggerTimeMs = ToUnixTimeMilliseconds(localTime);
 
         try
@@ -61,34 +78,14 @@ public class ReminderService : IReminderService
             return true;
         }
 
-        var context = global::Android.App.Application.Context;
-        if (context is null)
-        {
-            return false;
-        }
-
-        var notificationPermission = global::Android.Manifest.Permission.PostNotifications;
-        if (HasPermission(context, notificationPermission))
+        var status = await Permissions.CheckStatusAsync<Permissions.PostNotifications>();
+        if (status == PermissionStatus.Granted)
         {
             return true;
         }
 
-        var currentActivity = Platform.CurrentActivity;
-        if (currentActivity is null)
-        {
-            return false;
-        }
-
-        await MainThread.InvokeOnMainThreadAsync(() =>
-        {
-            ActivityCompat.RequestPermissions(
-                currentActivity,
-                new[] { notificationPermission },
-                NotificationPermissionRequestCode);
-        });
-
-        await Task.Delay(1500);
-        return HasPermission(context, notificationPermission);
+        status = await Permissions.RequestAsync<Permissions.PostNotifications>();
+        return status == PermissionStatus.Granted;
     }
 
     private static PendingIntent? CreatePendingIntent(Context context, string title, string message, int listId)
@@ -152,11 +149,6 @@ public class ReminderService : IReminderService
         }
 
         return flags;
-    }
-
-    private static bool HasPermission(Context context, string permission)
-    {
-        return ActivityCompat.CheckSelfPermission(context, permission) == Permission.Granted;
     }
 }
 

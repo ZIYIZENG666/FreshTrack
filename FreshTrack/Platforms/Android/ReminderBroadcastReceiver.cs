@@ -1,7 +1,5 @@
 ﻿using Android.App;
 using Android.Content;
-using FreshTrack.Platforms.Android;
-
 namespace FreshTrack.Platforms.Android;
 
 [BroadcastReceiver(Enabled = true, Exported = false)]
@@ -10,7 +8,10 @@ public class ReminderBroadcastReceiver : BroadcastReceiver
 {
     public override void OnReceive(Context? context, Intent? intent)
     {
-        if (context == null || intent == null) return;
+        if (context == null || intent == null)
+        {
+            return;
+        }
 
         var title = intent.GetStringExtra("Title") ?? "Grocery Reminder";
         var message = intent.GetStringExtra("Message") ?? "It's time to check your grocery list!";

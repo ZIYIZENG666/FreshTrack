@@ -20,9 +20,6 @@ public static class MauiProgram
 #endif
 
         builder.Services.AddSingleton<IShoppingListRepository, JsonShoppingListRepository>();
-        builder.Services.AddTransient<MainPage>();
-        builder.Services.AddTransient<ListManagementPage>();
-        builder.Services.AddTransient<GroceryListDetailPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

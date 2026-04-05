@@ -7,21 +7,14 @@
     FlyoutBehavior="Disabled"
     Title="FreshTrack">
 
-    <TabBar>
-        <ShellContent
-            Title="Home"
-            ContentTemplate="{DataTemplate local:MainPage}"
-            Route="home" />
+    <ShellContent
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="home"
+        Shell.NavBarIsVisible="False" />
 
-        <ShellContent
-            Title="Lists"
-            ContentTemplate="{DataTemplate local:ListManagementPage}"
-            Route="lists" />
-
-        <ShellContent
-            Title="Details"
-            ContentTemplate="{DataTemplate local:GroceryListDetailPage}"
-            Route="details" />
-    </TabBar>
+    <ShellContent
+        ContentTemplate="{DataTemplate local:ListManagementPage}"
+        Route="lists"
+        Shell.NavBarIsVisible="False" />
 
 </Shell>

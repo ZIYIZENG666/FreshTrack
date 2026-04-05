@@ -25,9 +25,9 @@ public sealed class JsonShoppingListRepository : IShoppingListRepository
 
             await using var stream = File.OpenRead(_filePath);
             var lists = await JsonSerializer.DeserializeAsync<List<ShoppingList>>(stream, SerializerOptions, cancellationToken);
-            return (lists ?? new List<ShoppingList>())
-                .Select(NormalizeList)
-                .ToList();
+            var normalizedLists = lists ?? new List<ShoppingList>();
+            NormalizeAndEnsureIds(normalizedLists);
+            return normalizedLists;
         }
         finally
         {
@@ -39,19 +39,11 @@ public sealed class JsonShoppingListRepository : IShoppingListRepository
     {
         ArgumentNullException.ThrowIfNull(lists);
 
-        var snapshot = lists
-            .Select(static list => new ShoppingList
-            {
-                Id = list.Id,
-                Name = list.Name,
-                Vegetable = list.Vegetable,
-                Meat = list.Meat,
-                Drink = list.Drink,
-                Item = list.Item,
-                Address = list.Address,
-                CreatedAt = list.CreatedAt,
-                LastUpdatedAt = list.LastUpdatedAt
-            })
+        var materializedLists = lists.ToList();
+        NormalizeAndEnsureIds(materializedLists);
+
+        var snapshot = materializedLists
+            .Select(static list => list.Clone())
             .ToList();
 
         var directory = Path.GetDirectoryName(_filePath);
@@ -73,6 +65,36 @@ public sealed class JsonShoppingListRepository : IShoppingListRepository
         }
     }
 
+    private static void NormalizeAndEnsureIds(IList<ShoppingList> lists)
+    {
+        var usedIds = new HashSet<int>();
+
+        foreach (var list in lists)
+        {
+            NormalizeList(list);
+
+            if (list.Id > 0 && usedIds.Add(list.Id))
+            {
+                continue;
+            }
+
+            list.Id = CreateUniqueId(usedIds);
+        }
+    }
+
+    private static int CreateUniqueId(HashSet<int> usedIds)
+    {
+        for (var candidate = 1; candidate < int.MaxValue; candidate++)
+        {
+            if (usedIds.Add(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        throw new InvalidOperationException("Unable to allocate a unique list id.");
+    }
+
     private static ShoppingList NormalizeList(ShoppingList list)
     {
         var fallbackTime = DateTime.Now;
@@ -83,6 +105,11 @@ public sealed class JsonShoppingListRepository : IShoppingListRepository
         list.Drink ??= string.Empty;
         list.Item ??= string.Empty;
         list.Address ??= string.Empty;
+
+        if (list.ReminderAt is DateTime reminderAt)
+        {
+            list.ReminderAt = ShoppingList.NormalizeReminderTime(reminderAt);
+        }
 
         if (list.CreatedAt == default && list.LastUpdatedAt == default)
         {

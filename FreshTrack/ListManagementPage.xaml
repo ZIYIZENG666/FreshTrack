@@ -5,7 +5,8 @@
              xmlns:controls="clr-namespace:FreshTrack.Controls"
              x:Class="FreshTrack.ListManagementPage"
              x:Name="RootPage"
-             Title="List Management">
+             Title="List Management"
+             Shell.NavBarIsVisible="False">
 
     <ContentPage.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
