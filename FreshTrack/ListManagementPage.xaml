@@ -38,7 +38,7 @@
                    FontSize="28"
                    FontAttributes="Bold"
                    TextColor="#2E5B43" />
-            <Label Text="Tap a card to open the list details."
+            <Label Text="Tap a list card to view or edit its details."
                    FontSize="13"
                    TextColor="#6E8D7A" />
         </VerticalStackLayout>
@@ -66,7 +66,7 @@
                             <GradientStop Color="#F1FAF2" Offset="1" />
                         </LinearGradientBrush>
                     </Border.Background>
-                    <Label Text="No lists yet. Add one to get started."
+                    <Label Text="No grocery lists yet. Add one to get started."
                            HorizontalTextAlignment="Center"
                            TextColor="#6E8D7A"
                            FontSize="14" />

@@ -16,13 +16,13 @@
                              HorizontalOptions="Center"
                              Spacing="20"
                              MaximumWidthRequest="340">
-            <Label Text="Fresh Track"
+            <Label Text="FreshTrack"
                    FontSize="40"
                    FontAttributes="Bold"
                    TextColor="#214634"
                    HorizontalTextAlignment="Center" />
 
-            <Label Text="Welcome back. Tap the text below to open today's grocery reminders."
+            <Label Text="Welcome back. Tap below to open your grocery lists and reminders."
                    FontSize="17"
                    TextColor="#5A7866"
                    HorizontalTextAlignment="Center" />
@@ -35,7 +35,7 @@
                     <TapGestureRecognizer Tapped="OnStartTapped" />
                 </Border.GestureRecognizers>
 
-                <Label Text="---&gt; Enter Today's List &lt;---"
+                <Label Text="---Open Today's Lists---"
                        FontSize="24"
                        FontAttributes="Bold"
                        TextColor="#B02C5A42"

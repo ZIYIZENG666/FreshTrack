@@ -34,7 +34,7 @@ public class ShoppingList
     public string CardTimestamp =>
         ReminderAt is DateTime reminderAt
             ? NormalizeReminderTime(reminderAt).ToString("yyyy-MM-dd HH:mm")
-            : "没有设置闹钟";
+            : "No reminder set";
 
     public static DateTime NormalizeReminderTime(DateTime reminderAt)
     {

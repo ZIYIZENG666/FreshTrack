@@ -128,14 +128,14 @@ public partial class GroceryListDetailPage : ContentPage
         {
             ReminderDateDisplayLabel.Text = "Not set";
             ReminderTimeDisplayLabel.Text = "--:--";
-            ReminderStatusLabel.Text = "Tap Reminder to set the schedule.";
+            ReminderStatusLabel.Text = "Tap Reminder to set a schedule.";
             return;
         }
 
         var localReminder = ShoppingList.NormalizeReminderTime(reminderAt);
         ReminderDateDisplayLabel.Text = localReminder.ToString("yyyy-MM-dd");
         ReminderTimeDisplayLabel.Text = localReminder.ToString("HH:mm");
-        ReminderStatusLabel.Text = "Tap Reminder to change the schedule.";
+        ReminderStatusLabel.Text = "Tap Reminder to update the schedule.";
     }
 
     private async Task<DateTime?> BuildTriggerTime()
@@ -227,7 +227,7 @@ public partial class GroceryListDetailPage : ContentPage
             && string.IsNullOrWhiteSpace(drink)
             && string.IsNullOrWhiteSpace(item))
         {
-            await DisplayAlertAsync("Notice", "Please enter at least one item in Vegetable, Meat, Drink, or Item.", "OK");
+            await DisplayAlertAsync("Notice", "Please enter at least one item in Vegetables, Meat, Drinks, or Other Items.", "OK");
             return;
         }
 

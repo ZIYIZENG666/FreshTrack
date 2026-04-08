@@ -4,7 +4,7 @@
              xmlns:controls="clr-namespace:FreshTrack.Controls"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls"
              x:Class="FreshTrack.GroceryListDetailPage"
-             Title="List Detail"
+             Title="Grocery List Details"
              Shell.NavBarIsVisible="False">
 
     <ContentPage.Background>
@@ -63,12 +63,12 @@
                 <VerticalStackLayout Spacing="6"
                                      HorizontalOptions="Center"
                                      Margin="0,0,0,4">
-                    <Label Text="Fresh List Detail"
+                    <Label Text="Grocery List Details"
                            FontSize="28"
                            FontAttributes="Bold"
                            TextColor="#2E5B43"
                            HorizontalTextAlignment="Center" />
-                    <Label Text="Organize your grocery reminder in clear green sections."
+                    <Label Text="Organize your grocery items and reminder in clear sections."
                            FontSize="13"
                            TextColor="#6E8D7A"
                            HorizontalTextAlignment="Center" />
@@ -82,11 +82,11 @@
                         <Shadow Brush="#154E6E3A" Offset="0,8" Radius="18" Opacity="0.14" />
                     </Border.Shadow>
                     <VerticalStackLayout Spacing="8">
-                        <Label Text="List Title"
+                        <Label Text="List Name"
                                FontSize="13"
                                TextColor="#70907A" />
                         <Entry x:Name="NameEntry"
-                               Placeholder="Enter a short list title"
+                               Placeholder="Enter a short list name"
                                HeightRequest="48"
                                BackgroundColor="#F2FAF3"
                                TextColor="#274734"
@@ -108,7 +108,7 @@
                                 Style="{StaticResource SectionEditorStyle}"
                                 AutoSize="Disabled"
                                 HeightRequest="78"
-                                Placeholder="Add the market, store, or delivery address here"
+                                Placeholder="Enter the market, store, or delivery address"
                                 TextChanged="OnContentChanged" />
                     </VerticalStackLayout>
                 </Border>
@@ -167,7 +167,7 @@
                         <shapes:RoundRectangle CornerRadius="26" />
                     </Border.StrokeShape>
                     <VerticalStackLayout Spacing="8">
-                        <Label Text="Items"
+                        <Label Text="Other Items"
                                FontAttributes="Bold"
                                FontSize="16"
                                TextColor="#2E5B43" />
@@ -188,7 +188,7 @@
                                FontAttributes="Bold"
                                FontSize="16"
                                TextColor="#2E5B43" />
-                        <Label Text="Choose the exact date and time for this reminder."
+                        <Label Text="Choose the date and time for this reminder."
                                FontSize="13"
                                TextColor="#6E8D7A" />
 
@@ -233,7 +233,7 @@
                         </Grid>
 
                         <Label x:Name="ReminderStatusLabel"
-                               Text="Tap Reminder to change the schedule."
+                               Text="Tap Reminder to update the schedule."
                                FontSize="12"
                                TextColor="#70907A" />
                     </VerticalStackLayout>
