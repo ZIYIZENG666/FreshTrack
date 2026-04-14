@@ -220,6 +220,7 @@ public partial class GroceryListDetailPage : ContentPage
         var item = ItemEntry?.Text?.Trim() ?? string.Empty;
         var address = AddressEntry?.Text?.Trim() ?? string.Empty;
         var reminderChanged = HasReminderChanged();
+        var reminderNeedsSync = reminderChanged || HasReminderTitleChanged(nameInput);
         DateTime? reminderTimeToSave = _workingList.ReminderAt;
 
         if (string.IsNullOrWhiteSpace(vegetable)
@@ -248,7 +249,7 @@ public partial class GroceryListDetailPage : ContentPage
         try
         {
             await _onSave(_workingList);
-            var reminderUpdated = await ApplyReminderIfNeededAsync(_workingList, reminderChanged);
+            var reminderUpdated = await ApplyReminderIfNeededAsync(_workingList, reminderNeedsSync);
             CaptureOriginalValues(_workingList);
             _isNew = false;
             UpdateSaveState();
@@ -363,6 +364,17 @@ public partial class GroceryListDetailPage : ContentPage
         return NormalizeReminder(_originalReminderAt) != NormalizeReminder(_workingList?.ReminderAt);
     }
 
+    private bool HasReminderTitleChanged(string? currentName)
+    {
+        if (!_hasReminder)
+        {
+            return false;
+        }
+
+        var normalizedCurrentName = currentName?.Trim() ?? string.Empty;
+        return normalizedCurrentName != _originalName;
+    }
+
     private static DateTime? NormalizeReminder(DateTime? reminderAt)
     {
         return reminderAt is DateTime value
@@ -370,9 +382,9 @@ public partial class GroceryListDetailPage : ContentPage
             : null;
     }
 
-    private async Task<bool> ApplyReminderIfNeededAsync(ShoppingList list, bool reminderChanged)
+    private async Task<bool> ApplyReminderIfNeededAsync(ShoppingList list, bool reminderNeedsSync)
     {
-        if (!reminderChanged)
+        if (!reminderNeedsSync)
         {
             return true;
         }

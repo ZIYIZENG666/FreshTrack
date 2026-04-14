@@ -15,7 +15,7 @@ public static class MauiProgram
             });
 #if ANDROID
 
-        builder.Services.AddSingleton<IReminderService, FreshTrack.Platforms.Android.ReminderService>();
+        builder.Services.AddSingleton<IReminderService, FreshTrack.Platforms.Android.ReminderService>();//Two key services are registered here
 #endif
 
         builder.Services.AddSingleton<IShoppingListRepository, JsonShoppingListRepository>();

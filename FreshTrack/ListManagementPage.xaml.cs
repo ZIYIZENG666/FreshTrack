@@ -11,6 +11,7 @@ public partial class ListManagementPage : ContentPage
         false);
 
     private readonly IShoppingListRepository _shoppingListRepository;
+    private readonly IReminderService? _reminderService;
     private bool _isLoading;
 
     public ObservableCollection<ShoppingList> Lists { get; } = new();
@@ -29,6 +30,7 @@ public partial class ListManagementPage : ContentPage
     {
         InitializeComponent();
         _shoppingListRepository = shoppingListRepository;
+        _reminderService = ServiceHelper.GetService<IReminderService>();
         BindingContext = this;
     }
 
@@ -171,6 +173,7 @@ public partial class ListManagementPage : ContentPage
         try
         {
             await PersistListsAsync();
+            _reminderService?.CancelReminder(list.Id);
         }
         catch
         {
